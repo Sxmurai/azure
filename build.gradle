@@ -1,0 +1,107 @@
+plugins {
+	id 'fabric-loom' version '0.11-SNAPSHOT'
+	id 'com.github.johnrengelman.shadow' version '7.1.2'
+	id 'de.fuerstenau.buildconfig' version '1.1.4'
+	id 'io.freefair.lombok' version '6.4.3'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+def getGitHash = { ->
+	try {
+		def stdout = new ByteArrayOutputStream()
+
+		exec {
+			commandLine 'git', 'rev-parse', '--short', 'HEAD'
+			standardOutput = stdout
+		}
+
+		return stdout.toString().trim()
+	} catch (ignored) {
+		return "USE_FUCKING_GIT"
+	}
+}
+
+buildConfig {
+	buildConfigField "String", "HASH", "${getGitHash()}"
+	buildConfigField "String", "VERSION", "${project.version}"
+
+	packageName "wtf.azure.util.versioning"
+}
+
+sourceSets.main.java.srcDirs += "build/gen/buildconfig/src/main"
+
+// https://github.com/mfuerstenau/gradle-buildconfig-plugin/issues/30#issuecomment-910241307
+configurations {
+	create("compile")
+}
+
+// https://github.com/mfuerstenau/gradle-buildconfig-plugin/issues/30#issuecomment-910241307
+tasks.withType(Jar).configureEach {
+	duplicatesStrategy = DuplicatesStrategy.WARN
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url = 'https://jitpack.io'
+	}
+}
+
+dependencies {
+	def dep = {
+		implementation it
+		shadow it
+	}
+
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// add multiconnect (connects to older versions of minecraft)
+	modImplementation("net.earthcomputer.multiconnect:multiconnect-api:${project.multiconnect_version}") {
+		transitive = false
+	}
+
+	include("net.earthcomputer.multiconnect:multiconnect-api:${project.multiconnect_version}") {
+		transitive = false
+	}
+
+	// i love bushbus!!!
+	dep "com.github.therealbush:eventbus:${project.bushbus_version}"
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/azure.accesswidener")
+}
+
+shadowJar {
+	configurations = [ project.configurations.shadow ]
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+}
+
+jar {
+	from "LICENSE"
+}
+
+remapJar {
+	dependsOn shadowJar
+	input.set(shadowJar.archiveFile)
+}

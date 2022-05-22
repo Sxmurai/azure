@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "wtf.azure.asm.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "client.MixinMinecraftClient",
+    "client.MixinSplashTextResourceSupplier",
+
+    "input.MixinKeyboard",
+
+    "render.MixinGameRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
