@@ -9,6 +9,8 @@
 
     "input.MixinKeyboard",
 
+    "net.MixinClientConnection",
+
     "render.MixinGameRenderer"
   ],
   "injectors": {

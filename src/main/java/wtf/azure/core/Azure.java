@@ -5,6 +5,7 @@ import me.bush.eventbus.bus.EventBus;
 import me.bush.eventbus.handler.handlers.LambdaHandler;
 import net.fabricmc.api.ClientModInitializer;
 import wtf.azure.core.cache.Caches;
+import wtf.azure.core.cache.caches.CommandCache;
 import wtf.azure.core.cache.caches.ModuleCache;
 import wtf.azure.util.versioning.BuildConfig;
 
@@ -27,5 +28,6 @@ public class Azure implements ClientModInitializer {
         log.info("Loading {} v{}", NAME, VERSION);
 
         Caches.registerCache(new ModuleCache());
+        Caches.registerCache(new CommandCache());
     }
 }
