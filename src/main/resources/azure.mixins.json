@@ -7,6 +7,9 @@
     "client.MixinMinecraftClient",
     "client.MixinSplashTextResourceSupplier",
 
+    "entity.MixinEntity",
+
+    "input.MixinClientPlayerInteractionManager",
     "input.MixinKeyboard",
 
     "net.MixinClientConnection",
